@@ -15,13 +15,14 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     public static float SENSOR_SAMPLING_PERIOD = 10F;
     private LineGraphSeries<DataPoint> lineGraphSeries_forZ;
     private SensorManager sensorManager;
-    private float currX = 0;
+    private float currX;
     private long newTime, startTime, prevTime;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        currX = 0;
 
         startTime = newTime = prevTime = System.currentTimeMillis();
 
@@ -34,8 +35,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         graphZ.getViewport().setMinY(-50);
         graphZ.getViewport().setMaxY(50);
 
-        graphZ.getViewport().setXAxisBoundsManual(false);
-        graphZ.getViewport().setMinX(1);
+        graphZ.getViewport().setXAxisBoundsManual(true);
 
 
         // enable scaling and scrolling
@@ -60,6 +60,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
             }
         }
+
     }
 
 
