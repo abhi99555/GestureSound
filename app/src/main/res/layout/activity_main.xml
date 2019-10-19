@@ -10,7 +10,23 @@
     <com.jjoe64.graphview.GraphView
         android:id="@+id/acclgraph"
         android:layout_width="match_parent"
-        android:layout_height="150dp"
+        android:layout_height="200dp"
         android:layout_margin="15dp"/>
 
+    <TextView
+        android:id="@+id/textView1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="TextView" />
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="TextView" />
+
+    <Button
+        android:id="@+id/cymbals"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:text="Cymbals" />
 </LinearLayout>
