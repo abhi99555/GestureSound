@@ -182,9 +182,15 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             @Override
             public void onCheckChanged(IconSwitch.Checked current) {
                 if (current == IconSwitch.Checked.LEFT) {
+                    instrument1Button.setText("C Major");
+                    instrument2Button.setText("G Major");
+                    instrument3Button.setText("D Major");
                     instrumentType = "GUITAR";
                     setInstruments();
                 } else {
+                    instrument1Button.setText("Snare");
+                    instrument2Button.setText("Tomtom");
+                    instrument3Button.setText("Cymbals");
                     instrumentType = "DRUMS";
                     setInstruments();
                 }
