@@ -242,7 +242,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 instrument3 = new MediaPlayer();
                 instrument3.setAudioSessionId(audioSessionId);
                 try{
-                    AssetFileDescriptor afd = getApplicationContext().getResources().openRawResourceFd(R.raw.guitarfmajor);
+                    AssetFileDescriptor afd = getApplicationContext().getResources().openRawResourceFd(R.raw.guitardmajor);
                     instrument3.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
                     instrument3.prepare();
                 }catch (Exception e){
