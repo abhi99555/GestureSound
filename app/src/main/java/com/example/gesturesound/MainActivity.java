@@ -39,6 +39,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private Button instrument3Button, instrument1Button, instrument2Button, interactiveSwitcher;
     private IconSwitch instrumentSwitch;
     private boolean interactive = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,16 +57,19 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         interactiveSwitcher = findViewById(R.id.interactive_switcher);
         instrumentSwitch = findViewById(R.id.icon_switch);
 
+
         instrument1Button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 playInstrument1();
+                playingInstrument1 = false;
             }
         });
         instrument2Button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 playInstrument2();
+                playingInstrument2 = false;
             }
         });
 
@@ -83,7 +87,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                     instrument1Button.setVisibility(View.GONE);
                     instrument2Button.setVisibility(View.GONE);
 
-                }else {
+                } else {
                     instrument1Button.setVisibility(View.VISIBLE);
                     instrument2Button.setVisibility(View.VISIBLE);
                 }
@@ -93,11 +97,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         instrumentSwitch.setCheckedChangeListener(new IconSwitch.CheckedChangeListener() {
             @Override
             public void onCheckChanged(IconSwitch.Checked current) {
-                if(current == IconSwitch.Checked.LEFT) {
+                if (current == IconSwitch.Checked.LEFT) {
                     instrumentType = "GUITAR";
                     setInstruments();
-                }
-                else {
+                } else {
                     instrumentType = "DRUMS";
                     setInstruments();
                 }
@@ -126,7 +129,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                         playingInstrument1 = false;
                     } else if (xAcceleration < -20) {
 //                        Log.d("TAG: ","SNARE x: "+xAcceleration+" z: "+zAcceleration);
-                        if(!interactive) playInstrument1();
+                        if (!interactive) playInstrument1();
                     }
 
                     if (playingInstrument2 && zAcceleration < 20) {
@@ -147,12 +150,12 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private void setInstruments() {
 
         //releasing any occupied resources
-        for (int i =0; i< instr1.size(); i++) {
+        for (int i = 0; i < instr1.size(); i++) {
             instr1.get(i).release();
             instr2.get(i).release();
             instr3.get(i).release();
         }
-        if (instrument1!= null) {
+        if (instrument1 != null) {
             instrument1.release();
             instrument2.release();
             instrument3.release();
@@ -186,7 +189,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
 
         //initial playing, to prevent later loading issues
-        for (int i =0; i< INSTRUMENT_BUFFER_SIZE; i++) {
+        for (int i = 0; i < INSTRUMENT_BUFFER_SIZE; i++) {
             instr1.get(i).start();
             instr2.get(i).start();
             instr3.get(i).start();
@@ -211,7 +214,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             playingInstrument2 = true;
             instr2.get(instr2Index).start();
             instr2Index = (instr2Index + 1) % INSTRUMENT_BUFFER_SIZE;
-            Log.d("TAG: ", "PLAYING HANGING" + (++instr2Count)+"INDEX "+instr2Index);
+            Log.d("TAG: ", "PLAYING HANGING" + (++instr2Count) + "INDEX " + instr2Index);
         }
     }
 
