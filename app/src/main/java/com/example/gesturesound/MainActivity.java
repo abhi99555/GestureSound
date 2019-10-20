@@ -6,6 +6,7 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -32,7 +33,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     private TextView xAcc, zAcc;
     private MediaPlayer instrument1, instrument2, instrument3;
-    private Button instrument3Button;
+    private Button instrument3Button, drumsButton, guitarButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,11 +44,27 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         setInstruments();
 
         instrument3Button = findViewById(R.id.cymbals);
+        drumsButton = findViewById(R.id.drums);
+        guitarButton = findViewById(R.id.guitar);
 
         instrument3Button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 playInstrument3();
+            }
+        });
+        drumsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                instrumentType = "DRUMS";
+                setInstruments();
+            }
+        });
+        guitarButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                instrumentType = "GUITAR";
+                setInstruments();
             }
         });
 
@@ -115,7 +132,14 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     private void setInstruments() {
         if (instrumentType.equals("DRUMS")){
-
+            instrument1 = MediaPlayer.create(this, R.raw.snare);
+            instrument2 = MediaPlayer.create(this, R.raw.tomtom);
+            instrument3 = MediaPlayer.create(this, R.raw.cymbals);
+        }
+        else if (instrumentType.equals("GUITAR")){
+            instrument1 = MediaPlayer.create(this, R.raw.guitarcmajor);
+            instrument2 = MediaPlayer.create(this, R.raw.guitargmajor);
+            instrument3 = MediaPlayer.create(this, R.raw.guitarfmajor);
         }
 
     }
@@ -144,11 +168,12 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             instrument3 = MediaPlayer.create(this, R.raw.cymbals);
         }
         else if (instrumentType.equals("GUITAR")) {
-
+            instrument3 = MediaPlayer.create(this, R.raw.guitarfmajor);
         }
         else{
             instrument3 = MediaPlayer.create(this, R.raw.cymbals);
         }
+
         instrument3.start();
         instrument3.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
