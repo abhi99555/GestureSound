@@ -18,31 +18,36 @@ import com.jjoe64.graphview.series.LineGraphSeries;
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
     public static float SENSOR_SAMPLING_PERIOD = 10F;
-    int snareCt = 0;
-    int hangCt = 0;
+    int instr1Count = 0;
+    int instr2Count = 0;
+
     private LineGraphSeries<DataPoint> lineGraphSeries_forZ;
     private SensorManager sensorManager;
+
+    private String instrumentType = "DRUMS";
+
     private float currX;
     private long newTime, startTime, prevTime;
-    private boolean playingSnare = false, playingHanging = false, playingCymbals = false;
+    private boolean playingInstrument1 = false, playingInstrument2 = false;
+
     private TextView xAcc, zAcc;
-    private MediaPlayer snare, tomtom, cym;
-    private Button cymbals;
+    private MediaPlayer instrument1, instrument2, instrument3;
+    private Button instrument3Button;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         currX = 0;
-        snare = MediaPlayer.create(this, R.raw.snare);
-        tomtom = MediaPlayer.create(this, R.raw.tomtom);
-        cym = MediaPlayer.create(this, R.raw.cymbals);
 
-        cymbals = findViewById(R.id.cymbals);
+        setInstruments();
 
-        cymbals.setOnClickListener(new View.OnClickListener() {
+        instrument3Button = findViewById(R.id.cymbals);
+
+        instrument3Button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                playCymbals();
+                playInstrument3();
             }
         });
 
@@ -84,89 +89,74 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                     currX = xAcceleration;
                     xAcc.setText("x = " + xAcceleration);
                     zAcc.setText("z = " + zAcceleration);
-                    if (playingSnare && xAcceleration > -20) {
-                        playingSnare = false;
+                    if (playingInstrument1 && xAcceleration > -20) {
+                        playingInstrument1 = false;
                     }
                     else if (xAcceleration < -20) {
 //                        Log.d("TAG: ","SNARE x: "+xAcceleration+" z: "+zAcceleration);
-                        playSnare();
+                        playInstrument1();
                     }
 
-                    if (playingHanging && zAcceleration < 20){
-                        playingHanging = false;
+                    if (playingInstrument2 && zAcceleration < 20){
+                        playingInstrument2 = false;
                     }
                     else if (zAcceleration >20){
-                        playHanging();
+                        playInstrument2();
                     }
 
                 } else {
                     currX = 0f;
                 }
                 lineGraphSeries_forZ.appendData(new DataPoint((newTime - startTime) / 10, currX), true, 10000, false);
-
-
-//
-//                if (Math.abs(xAcceleration) > 1) {
-//                    currX = xAcceleration;
-//                    xAcc.setText("x = " + xAcceleration);
-//                    zAcc.setText("z = " + zAcceleration);
-//
-//                    if (playingSnare && xAcceleration > -10 && zAcceleration < -5) {
-//                        playingSnare = !playingSnare;
-//                    } else if (playingHanging && zAcceleration > -5 && xAcceleration < -10) {
-//                        playingHanging = !playingHanging;
-//                    } else if (xAcceleration > 0 || zAcceleration > 0) {
-//                    }
-////                    else if(xAcceleration < -12 && zAcceleration < -7){
-////                        Log.d("TAG: ","CYMBALS x: "+xAcceleration+" z: "+zAcceleration);
-////                    }
-//                    else if (xAcceleration < -10 && zAcceleration > -5) {
-////                        Log.d("TAG: ","SNARE x: "+xAcceleration+" z: "+zAcceleration);
-//                        playSnare();
-//                    } else if (zAcceleration < -5 && xAcceleration > -10) {
-////                        Log.d("TAG: ","HANGING x: "+xAcceleration+" z: "+zAcceleration);
-//                        playHanging();
-//                    }
-//
-//                } else {
-//                    currX = 0f;
-//                }
-//                lineGraphSeries_forZ.appendData(new DataPoint((newTime - startTime) / 10, currX), true, 10000, false);
-
             }
         }
 
     }
 
-    private void playSnare() {
+    private void setInstruments() {
+        if (instrumentType.equals("DRUMS")){
+
+        }
+
+    }
+
+    private void playInstrument1() {
         Log.d("TAG:  ", "SNARE TRIGGERED");
-        if (!playingSnare) {
-            playingSnare = true;
-            snare.start();
-            Log.d("TAG: ", "PLAYING SNARE" + (++snareCt));
+        if (!playingInstrument1) {
+            playingInstrument1 = true;
+            instrument1.start();
+            Log.d("TAG: ", "PLAYING SNARE" + (++instr1Count));
         }
     }
 
 
-    private void playHanging() {
+    private void playInstrument2() {
         Log.d("TAG:  ", "HIHAT TRIGGERED");
-        if (!playingHanging) {
-            playingHanging = true;
-            tomtom.start();
-            Log.d("TAG: ", "PLAYING HANGING" + (++hangCt));
+        if (!playingInstrument2) {
+            playingInstrument2 = true;
+            instrument2.start();
+            Log.d("TAG: ", "PLAYING HANGING" + (++instr2Count));
         }
     }
 
-    private void playCymbals() {
-        cym = MediaPlayer.create(this, R.raw.cymbals);
-        cym.start();
-        cym.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+    private void playInstrument3() {
+        if (instrumentType.equals("DRUMS")){
+            instrument3 = MediaPlayer.create(this, R.raw.cymbals);
+        }
+        else if (instrumentType.equals("GUITAR")) {
+
+        }
+        else{
+            instrument3 = MediaPlayer.create(this, R.raw.cymbals);
+        }
+        instrument3.start();
+        instrument3.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mp) {
-                cym.release();
+                instrument3.release();
             }
         });
-        Log.d("TAG: ", "PLAYING HANGING" + (++hangCt));
+        Log.d("TAG: ", "PLAYING HANGING" + (++instr2Count));
     }
 
 //    private void playBassDrum(){}
