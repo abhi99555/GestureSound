@@ -1,6 +1,8 @@
 package com.example.gesturesound;
 
+import android.Manifest;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.content.res.AssetFileDescriptor;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -9,13 +11,15 @@ import android.hardware.SensorManager;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.gauravk.audiovisualizer.visualizer.BarVisualizer;
-import com.gauravk.audiovisualizer.visualizer.CircleLineVisualizer;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 import com.polyak.iconswitch.IconSwitch;
@@ -52,12 +56,74 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        requestAudioPermissions();
+
+
+    }
+
+    private final int MY_PERMISSIONS_RECORD_AUDIO = 1;
+
+    private void requestAudioPermissions() {
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.RECORD_AUDIO)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            //When permission is not granted by user, show them message why this permission is needed.
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    Manifest.permission.RECORD_AUDIO)) {
+                Toast.makeText(this, "Please grant permissions to record audio", Toast.LENGTH_LONG).show();
+
+                //Give user option to still opt-in the permissions
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.RECORD_AUDIO},
+                        MY_PERMISSIONS_RECORD_AUDIO);
+
+            } else {
+                // Show user dialog to grant permission to record audio
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.RECORD_AUDIO},
+                        MY_PERMISSIONS_RECORD_AUDIO);
+            }
+        }
+        //If permission is granted, then go ahead recording audio
+        else if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.RECORD_AUDIO)
+                == PackageManager.PERMISSION_GRANTED) {
+
+            //Go ahead with recording audio now
+            init();
+        }
+    }
+
+    //Handling callback
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case MY_PERMISSIONS_RECORD_AUDIO: {
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // permission was granted, yay!
+                    init();
+                } else {
+                    requestAudioPermissions();
+                    // permission denied, boo! Disable the
+                    // functionality that depends on this permission.
+                    Toast.makeText(this, "Permissions Denied to record audio", Toast.LENGTH_LONG).show();
+                }
+                return;
+            }
+        }
+    }
+
+    private void init() {
         currX = 0;
 
         soundVisualizer = findViewById(R.id.visualizer);
         AudioManager audioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
         audioSessionId = audioManager.generateAudioSessionId();
-        if(audioSessionId!=AudioManager.ERROR){
+        if (audioSessionId != AudioManager.ERROR) {
             soundVisualizer.setAudioSessionId(audioSessionId);
         }
 
@@ -126,8 +192,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         startTime = newTime = prevTime = System.currentTimeMillis();
         lineGraphSeries_forZ = new LineGraphSeries<>();
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
-
-
     }
 
     @Override
@@ -185,31 +249,31 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             for (int i = 0; i < INSTRUMENT_BUFFER_SIZE; i++) {
                 instrument1 = new MediaPlayer();
                 instrument1.setAudioSessionId(audioSessionId);
-                try{
+                try {
                     AssetFileDescriptor afd = getApplicationContext().getResources().openRawResourceFd(R.raw.snare);
                     instrument1.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
                     instrument1.prepare();
-                }catch (Exception e){
+                } catch (Exception e) {
                     Log.d("TAGTAG", e.getMessage());
                 }
 
                 instrument2 = new MediaPlayer();
                 instrument2.setAudioSessionId(audioSessionId);
-                try{
+                try {
                     AssetFileDescriptor afd = getApplicationContext().getResources().openRawResourceFd(R.raw.tomtom);
                     instrument2.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
                     instrument2.prepare();
-                }catch (Exception e){
+                } catch (Exception e) {
                     Log.d("TAGTAG", e.getMessage());
                 }
 
                 instrument3 = new MediaPlayer();
                 instrument3.setAudioSessionId(audioSessionId);
-                try{
+                try {
                     AssetFileDescriptor afd = getApplicationContext().getResources().openRawResourceFd(R.raw.cymbals);
                     instrument3.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
                     instrument3.prepare();
-                }catch (Exception e){
+                } catch (Exception e) {
                     Log.d("TAGTAG", e.getMessage());
                 }
 
@@ -221,31 +285,31 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             for (int i = 0; i < INSTRUMENT_BUFFER_SIZE; i++) {
                 instrument1 = new MediaPlayer();
                 instrument1.setAudioSessionId(audioSessionId);
-                try{
+                try {
                     AssetFileDescriptor afd = getApplicationContext().getResources().openRawResourceFd(R.raw.guitarcmajor);
                     instrument1.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
                     instrument1.prepare();
-                }catch (Exception e){
+                } catch (Exception e) {
                     Log.d("TAGTAG", e.getMessage());
                 }
 
                 instrument2 = new MediaPlayer();
                 instrument2.setAudioSessionId(audioSessionId);
-                try{
+                try {
                     AssetFileDescriptor afd = getApplicationContext().getResources().openRawResourceFd(R.raw.guitargmajor);
                     instrument2.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
                     instrument2.prepare();
-                }catch (Exception e){
+                } catch (Exception e) {
                     Log.d("TAGTAG", e.getMessage());
                 }
 
                 instrument3 = new MediaPlayer();
                 instrument3.setAudioSessionId(audioSessionId);
-                try{
+                try {
                     AssetFileDescriptor afd = getApplicationContext().getResources().openRawResourceFd(R.raw.guitardmajor);
                     instrument3.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
                     instrument3.prepare();
-                }catch (Exception e){
+                } catch (Exception e) {
                     Log.d("TAGTAG", e.getMessage());
                 }
 
@@ -300,13 +364,16 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     protected void onResume() {
         super.onResume();
 
-        sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_GAME);
+        if (sensorManager != null)
+            sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_GAME);
 //        sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD), SensorManager.SENSOR_DELAY_FASTEST);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
+
+        if (sensorManager != null)
         sensorManager.unregisterListener(this);
     }
 }
