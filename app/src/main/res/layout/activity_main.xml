@@ -102,4 +102,16 @@
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent" />
 
+    <com.gauravk.audiovisualizer.visualizer.BarVisualizer
+        android:id="@+id/visualizer"
+        android:layout_width="match_parent"
+        android:layout_height="120dp"
+        app:avColor="@color/colorAccent"
+        app:avDensity="0.5"
+        app:avSpeed="fast"
+        app:avType="fill"
+        app:layout_constraintBottom_toTopOf="@+id/interactive_switcher"
+        app:layout_constraintTop_toBottomOf="@+id/instrument3"
+        tools:layout_editor_absoluteX="0dp" />
+
 </android.support.constraint.ConstraintLayout>

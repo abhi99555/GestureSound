@@ -1,9 +1,12 @@
 package com.example.gesturesound;
 
+import android.content.Context;
+import android.content.res.AssetFileDescriptor;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -11,6 +14,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
+import com.gauravk.audiovisualizer.visualizer.BarVisualizer;
+import com.gauravk.audiovisualizer.visualizer.CircleLineVisualizer;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 import com.polyak.iconswitch.IconSwitch;
@@ -40,11 +45,22 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private IconSwitch instrumentSwitch;
     private boolean interactive = false;
 
+    private BarVisualizer soundVisualizer;
+    private int audioSessionId = 0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         currX = 0;
+
+        soundVisualizer = findViewById(R.id.visualizer);
+        AudioManager audioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+        audioSessionId = audioManager.generateAudioSessionId();
+        if(audioSessionId!=AudioManager.ERROR){
+            soundVisualizer.setAudioSessionId(audioSessionId);
+        }
+
 
         instr1 = new ArrayList<>();
         instr2 = new ArrayList<>();
@@ -167,9 +183,35 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         //initializing
         if (instrumentType.equals("DRUMS")) {
             for (int i = 0; i < INSTRUMENT_BUFFER_SIZE; i++) {
-                instrument1 = MediaPlayer.create(this, R.raw.snare);
-                instrument2 = MediaPlayer.create(this, R.raw.tomtom);
-                instrument3 = MediaPlayer.create(this, R.raw.cymbals);
+                instrument1 = new MediaPlayer();
+                instrument1.setAudioSessionId(audioSessionId);
+                try{
+                    AssetFileDescriptor afd = getApplicationContext().getResources().openRawResourceFd(R.raw.snare);
+                    instrument1.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
+                    instrument1.prepare();
+                }catch (Exception e){
+                    Log.d("TAGTAG", e.getMessage());
+                }
+
+                instrument2 = new MediaPlayer();
+                instrument2.setAudioSessionId(audioSessionId);
+                try{
+                    AssetFileDescriptor afd = getApplicationContext().getResources().openRawResourceFd(R.raw.tomtom);
+                    instrument2.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
+                    instrument2.prepare();
+                }catch (Exception e){
+                    Log.d("TAGTAG", e.getMessage());
+                }
+
+                instrument3 = new MediaPlayer();
+                instrument3.setAudioSessionId(audioSessionId);
+                try{
+                    AssetFileDescriptor afd = getApplicationContext().getResources().openRawResourceFd(R.raw.cymbals);
+                    instrument3.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
+                    instrument3.prepare();
+                }catch (Exception e){
+                    Log.d("TAGTAG", e.getMessage());
+                }
 
                 instr1.add(instrument1);
                 instr2.add(instrument2);
@@ -177,9 +219,35 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             }
         } else if (instrumentType.equals("GUITAR")) {
             for (int i = 0; i < INSTRUMENT_BUFFER_SIZE; i++) {
-                instrument1 = MediaPlayer.create(this, R.raw.guitarcmajor);
-                instrument2 = MediaPlayer.create(this, R.raw.guitargmajor);
-                instrument3 = MediaPlayer.create(this, R.raw.guitarfmajor);
+                instrument1 = new MediaPlayer();
+                instrument1.setAudioSessionId(audioSessionId);
+                try{
+                    AssetFileDescriptor afd = getApplicationContext().getResources().openRawResourceFd(R.raw.guitarcmajor);
+                    instrument1.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
+                    instrument1.prepare();
+                }catch (Exception e){
+                    Log.d("TAGTAG", e.getMessage());
+                }
+
+                instrument2 = new MediaPlayer();
+                instrument2.setAudioSessionId(audioSessionId);
+                try{
+                    AssetFileDescriptor afd = getApplicationContext().getResources().openRawResourceFd(R.raw.guitargmajor);
+                    instrument2.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
+                    instrument2.prepare();
+                }catch (Exception e){
+                    Log.d("TAGTAG", e.getMessage());
+                }
+
+                instrument3 = new MediaPlayer();
+                instrument3.setAudioSessionId(audioSessionId);
+                try{
+                    AssetFileDescriptor afd = getApplicationContext().getResources().openRawResourceFd(R.raw.guitarfmajor);
+                    instrument3.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
+                    instrument3.prepare();
+                }catch (Exception e){
+                    Log.d("TAGTAG", e.getMessage());
+                }
 
                 instr1.add(instrument1);
                 instr2.add(instrument2);
