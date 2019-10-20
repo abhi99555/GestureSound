@@ -79,25 +79,23 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
                 float xAcceleration = Math.round(event.values[0]);
                 float zAcceleration = Math.round(event.values[2]);
-                if (Math.abs(xAcceleration) > 1) {
+                Log.d("TAGGING", xAcceleration+"x "+zAcceleration);
+                if(Math.abs((xAcceleration))>1) {
                     currX = xAcceleration;
                     xAcc.setText("x = " + xAcceleration);
                     zAcc.setText("z = " + zAcceleration);
-
-                    if (playingSnare && xAcceleration > -10 && zAcceleration < -5) {
-                        playingSnare = !playingSnare;
-                    } else if (playingHanging && zAcceleration > -5 && xAcceleration < -10) {
-                        playingHanging = !playingHanging;
-                    } else if (xAcceleration > 0 || zAcceleration > 0) {
+                    if (playingSnare && xAcceleration > -20) {
+                        playingSnare = false;
                     }
-//                    else if(xAcceleration < -12 && zAcceleration < -7){
-//                        Log.d("TAG: ","CYMBALS x: "+xAcceleration+" z: "+zAcceleration);
-//                    }
-                    else if (xAcceleration < -10 && zAcceleration > -5) {
+                    else if (xAcceleration < -20) {
 //                        Log.d("TAG: ","SNARE x: "+xAcceleration+" z: "+zAcceleration);
                         playSnare();
-                    } else if (zAcceleration < -5 && xAcceleration > -10) {
-//                        Log.d("TAG: ","HANGING x: "+xAcceleration+" z: "+zAcceleration);
+                    }
+
+                    if (playingHanging && zAcceleration < 20){
+                        playingHanging = false;
+                    }
+                    else if (zAcceleration >20){
                         playHanging();
                     }
 
@@ -106,14 +104,44 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 }
                 lineGraphSeries_forZ.appendData(new DataPoint((newTime - startTime) / 10, currX), true, 10000, false);
 
+
+//
+//                if (Math.abs(xAcceleration) > 1) {
+//                    currX = xAcceleration;
+//                    xAcc.setText("x = " + xAcceleration);
+//                    zAcc.setText("z = " + zAcceleration);
+//
+//                    if (playingSnare && xAcceleration > -10 && zAcceleration < -5) {
+//                        playingSnare = !playingSnare;
+//                    } else if (playingHanging && zAcceleration > -5 && xAcceleration < -10) {
+//                        playingHanging = !playingHanging;
+//                    } else if (xAcceleration > 0 || zAcceleration > 0) {
+//                    }
+////                    else if(xAcceleration < -12 && zAcceleration < -7){
+////                        Log.d("TAG: ","CYMBALS x: "+xAcceleration+" z: "+zAcceleration);
+////                    }
+//                    else if (xAcceleration < -10 && zAcceleration > -5) {
+////                        Log.d("TAG: ","SNARE x: "+xAcceleration+" z: "+zAcceleration);
+//                        playSnare();
+//                    } else if (zAcceleration < -5 && xAcceleration > -10) {
+////                        Log.d("TAG: ","HANGING x: "+xAcceleration+" z: "+zAcceleration);
+//                        playHanging();
+//                    }
+//
+//                } else {
+//                    currX = 0f;
+//                }
+//                lineGraphSeries_forZ.appendData(new DataPoint((newTime - startTime) / 10, currX), true, 10000, false);
+
             }
         }
 
     }
 
     private void playSnare() {
+        Log.d("TAG:  ", "SNARE TRIGGERED");
         if (!playingSnare) {
-            playingSnare = !playingSnare;
+            playingSnare = true;
             snare.start();
             Log.d("TAG: ", "PLAYING SNARE" + (++snareCt));
         }
@@ -121,19 +149,24 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
 
     private void playHanging() {
+        Log.d("TAG:  ", "HIHAT TRIGGERED");
         if (!playingHanging) {
-            playingHanging = !playingHanging;
+            playingHanging = true;
             tomtom.start();
             Log.d("TAG: ", "PLAYING HANGING" + (++hangCt));
         }
     }
 
     private void playCymbals() {
-        if (!playingCymbals) {
-            playingCymbals = !playingCymbals;
-            cym.start();
-            Log.d("TAG: ", "PLAYING HANGING" + (++hangCt));
-        }
+        cym = MediaPlayer.create(this, R.raw.cymbals);
+        cym.start();
+        cym.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mp) {
+                cym.release();
+            }
+        });
+        Log.d("TAG: ", "PLAYING HANGING" + (++hangCt));
     }
 
 //    private void playBassDrum(){}
