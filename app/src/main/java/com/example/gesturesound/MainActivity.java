@@ -10,9 +10,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.TextView;
+import android.widget.CompoundButton;
+import android.widget.ToggleButton;
 
-import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 
@@ -34,11 +34,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private long newTime, startTime, prevTime;
     private boolean playingInstrument1 = false, playingInstrument2 = false;
 
-    private TextView xAcc, zAcc;
     private ArrayList<MediaPlayer> instr1, instr2, instr3;
     private int instr1Index = 0, instr2Index = 0, instr3Index = 0;
     private MediaPlayer instrument1, instrument2, instrument3;
     private Button instrument3Button, drumsButton, guitarButton;
+    private ToggleButton toggle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +54,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         instrument3Button = findViewById(R.id.cymbals);
         drumsButton = findViewById(R.id.drums);
         guitarButton = findViewById(R.id.guitar);
+        toggle = findViewById(R.id.toggle);
 
         instrument3Button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -75,29 +76,25 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 setInstruments();
             }
         });
+        toggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if(isChecked){
+//                    buttonView.setButtonDrawable(R.drawable.ic_guitar);
+                }
+                else{
+//                    buttonView.setDraw(R.drawable.ic_drum_set_cartoon_variant);
+                }
+            }
+        });
 
-        xAcc = findViewById(R.id.textView1);
-        zAcc = findViewById(R.id.textView2);
 
         startTime = newTime = prevTime = System.currentTimeMillis();
 
         lineGraphSeries_forZ = new LineGraphSeries<>();
-        final GraphView graphZ = (GraphView) findViewById(R.id.acclgraph);
 
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 
-        graphZ.getViewport().setYAxisBoundsManual(true);
-        graphZ.getViewport().setMinY(-50);
-        graphZ.getViewport().setMaxY(50);
-
-        graphZ.getViewport().setXAxisBoundsManual(true);
-
-
-        // enable scaling and scrolling
-        graphZ.getViewport().setScalable(true);
-        graphZ.getViewport().setScalableY(true);
-
-        graphZ.addSeries(lineGraphSeries_forZ);
 
     }
 
@@ -112,8 +109,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 //Log.d("TAGGING", xAcceleration + "x " + zAcceleration);
                 if (Math.abs((xAcceleration)) > 1) {
                     currX = xAcceleration;
-                    xAcc.setText("x = " + xAcceleration);
-                    zAcc.setText("z = " + zAcceleration);
                     if (playingInstrument1 && xAcceleration > -20) {
                         playingInstrument1 = false;
                     } else if (xAcceleration < -20) {
