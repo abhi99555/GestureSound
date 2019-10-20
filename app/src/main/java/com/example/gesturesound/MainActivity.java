@@ -61,7 +61,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         instr1 = new ArrayList<>();
         instr2 = new ArrayList<>();
         instr3 = new ArrayList<>();
-]
 
         soundVisualizer = findViewById(R.id.visualizer);
         if (!checkIfAlreadyhavePermission()) {
