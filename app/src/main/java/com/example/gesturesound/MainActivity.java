@@ -10,11 +10,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.CompoundButton;
-import android.widget.ToggleButton;
 
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
+import com.polyak.iconswitch.IconSwitch;
 
 import java.util.ArrayList;
 
@@ -37,9 +36,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private ArrayList<MediaPlayer> instr1, instr2, instr3;
     private int instr1Index = 0, instr2Index = 0, instr3Index = 0;
     private MediaPlayer instrument1, instrument2, instrument3;
-    private Button instrument3Button, drumsButton, guitarButton;
-    private ToggleButton toggle;
-
+    private Button instrument3Button, instrument1Button, instrument2Button, interactiveSwitcher;
+    private IconSwitch instrumentSwitch;
+    private boolean interactive = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,10 +50,24 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         instr3 = new ArrayList<>();
         setInstruments();
 
-        instrument3Button = findViewById(R.id.cymbals);
-        drumsButton = findViewById(R.id.drums);
-        guitarButton = findViewById(R.id.guitar);
-        toggle = findViewById(R.id.toggle);
+        instrument3Button = findViewById(R.id.instrument3);
+        instrument1Button = findViewById(R.id.instrument1);
+        instrument2Button = findViewById(R.id.instrument2);
+        interactiveSwitcher = findViewById(R.id.interactive_switcher);
+        instrumentSwitch = findViewById(R.id.icon_switch);
+
+        instrument1Button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                playInstrument1();
+            }
+        });
+        instrument2Button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                playInstrument2();
+            }
+        });
 
         instrument3Button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -62,37 +75,37 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 playInstrument3();
             }
         });
-        drumsButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                instrumentType = "DRUMS";
-                setInstruments();
-            }
-        });
-        guitarButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                instrumentType = "GUITAR";
-                setInstruments();
-            }
-        });
-        toggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if(isChecked){
-//                    buttonView.setButtonDrawable(R.drawable.ic_guitar);
-                }
-                else{
-//                    buttonView.setDraw(R.drawable.ic_drum_set_cartoon_variant);
-                }
-            }
-        });
 
+        interactiveSwitcher.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (interactive) {
+                    instrument1Button.setVisibility(View.GONE);
+                    instrument2Button.setVisibility(View.GONE);
+
+                }else {
+                    instrument1Button.setVisibility(View.VISIBLE);
+                    instrument2Button.setVisibility(View.VISIBLE);
+                }
+                interactive = !interactive;
+            }
+        });
+        instrumentSwitch.setCheckedChangeListener(new IconSwitch.CheckedChangeListener() {
+            @Override
+            public void onCheckChanged(IconSwitch.Checked current) {
+                if(current == IconSwitch.Checked.LEFT) {
+                    instrumentType = "GUITAR";
+                    setInstruments();
+                }
+                else {
+                    instrumentType = "DRUMS";
+                    setInstruments();
+                }
+            }
+        });
 
         startTime = newTime = prevTime = System.currentTimeMillis();
-
         lineGraphSeries_forZ = new LineGraphSeries<>();
-
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 
 
@@ -113,13 +126,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                         playingInstrument1 = false;
                     } else if (xAcceleration < -20) {
 //                        Log.d("TAG: ","SNARE x: "+xAcceleration+" z: "+zAcceleration);
-                        playInstrument1();
+                        if(!interactive) playInstrument1();
                     }
 
                     if (playingInstrument2 && zAcceleration < 20) {
                         playingInstrument2 = false;
                     } else if (zAcceleration > 20) {
-                        playInstrument2();
+                        if (!interactive) playInstrument2();
                     }
 
                 } else {
