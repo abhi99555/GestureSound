@@ -98,7 +98,7 @@
         android:id="@+id/interactive_switcher"
         android:layout_margin="16dp"
         android:layout_width="match_parent"
-        android:text="Use Interactive Display"
+        android:text="Switch to Interactive Display"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent" />
 

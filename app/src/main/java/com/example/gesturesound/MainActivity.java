@@ -168,10 +168,12 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 if (interactive) {
                     instrument1Button.setVisibility(View.GONE);
                     instrument2Button.setVisibility(View.GONE);
+                    interactiveSwitcher.setText("Switch to Interactive Display");
 
                 } else {
                     instrument1Button.setVisibility(View.VISIBLE);
                     instrument2Button.setVisibility(View.VISIBLE);
+                    interactiveSwitcher.setText("Switch to Hand Gestures");
                 }
                 interactive = !interactive;
             }
