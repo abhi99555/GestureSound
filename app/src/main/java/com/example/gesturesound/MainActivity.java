@@ -6,7 +6,6 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -17,8 +16,12 @@ import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 
+import java.util.ArrayList;
+
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
     public static float SENSOR_SAMPLING_PERIOD = 10F;
+    public static final int INSTRUMENT_BUFFER_SIZE = 8;
+
     int instr1Count = 0;
     int instr2Count = 0;
 
@@ -32,6 +35,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private boolean playingInstrument1 = false, playingInstrument2 = false;
 
     private TextView xAcc, zAcc;
+    private ArrayList<MediaPlayer> instr1, instr2, instr3;
+    private int instr1Index = 0, instr2Index = 0, instr3Index = 0;
     private MediaPlayer instrument1, instrument2, instrument3;
     private Button instrument3Button, drumsButton, guitarButton;
 
@@ -41,6 +46,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         setContentView(R.layout.activity_main);
         currX = 0;
 
+        instr1 = new ArrayList<>();
+        instr2 = new ArrayList<>();
+        instr3 = new ArrayList<>();
         setInstruments();
 
         instrument3Button = findViewById(R.id.cymbals);
@@ -101,23 +109,21 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
                 float xAcceleration = Math.round(event.values[0]);
                 float zAcceleration = Math.round(event.values[2]);
-                Log.d("TAGGING", xAcceleration+"x "+zAcceleration);
-                if(Math.abs((xAcceleration))>1) {
+                //Log.d("TAGGING", xAcceleration + "x " + zAcceleration);
+                if (Math.abs((xAcceleration)) > 1) {
                     currX = xAcceleration;
                     xAcc.setText("x = " + xAcceleration);
                     zAcc.setText("z = " + zAcceleration);
                     if (playingInstrument1 && xAcceleration > -20) {
                         playingInstrument1 = false;
-                    }
-                    else if (xAcceleration < -20) {
+                    } else if (xAcceleration < -20) {
 //                        Log.d("TAG: ","SNARE x: "+xAcceleration+" z: "+zAcceleration);
                         playInstrument1();
                     }
 
-                    if (playingInstrument2 && zAcceleration < 20){
+                    if (playingInstrument2 && zAcceleration < 20) {
                         playingInstrument2 = false;
-                    }
-                    else if (zAcceleration >20){
+                    } else if (zAcceleration > 20) {
                         playInstrument2();
                     }
 
@@ -131,15 +137,51 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     }
 
     private void setInstruments() {
-        if (instrumentType.equals("DRUMS")){
-            instrument1 = MediaPlayer.create(this, R.raw.snare);
-            instrument2 = MediaPlayer.create(this, R.raw.tomtom);
-            instrument3 = MediaPlayer.create(this, R.raw.cymbals);
+
+        //releasing any occupied resources
+        for (int i =0; i< instr1.size(); i++) {
+            instr1.get(i).release();
+            instr2.get(i).release();
+            instr3.get(i).release();
         }
-        else if (instrumentType.equals("GUITAR")){
-            instrument1 = MediaPlayer.create(this, R.raw.guitarcmajor);
-            instrument2 = MediaPlayer.create(this, R.raw.guitargmajor);
-            instrument3 = MediaPlayer.create(this, R.raw.guitarfmajor);
+        if (instrument1!= null) {
+            instrument1.release();
+            instrument2.release();
+            instrument3.release();
+        }
+        instr1.clear();
+        instr2.clear();
+        instr3.clear();
+
+        //initializing
+        if (instrumentType.equals("DRUMS")) {
+            for (int i = 0; i < INSTRUMENT_BUFFER_SIZE; i++) {
+                instrument1 = MediaPlayer.create(this, R.raw.snare);
+                instrument2 = MediaPlayer.create(this, R.raw.tomtom);
+                instrument3 = MediaPlayer.create(this, R.raw.cymbals);
+
+                instr1.add(instrument1);
+                instr2.add(instrument2);
+                instr3.add(instrument3);
+            }
+        } else if (instrumentType.equals("GUITAR")) {
+            for (int i = 0; i < INSTRUMENT_BUFFER_SIZE; i++) {
+                instrument1 = MediaPlayer.create(this, R.raw.guitarcmajor);
+                instrument2 = MediaPlayer.create(this, R.raw.guitargmajor);
+                instrument3 = MediaPlayer.create(this, R.raw.guitarfmajor);
+
+                instr1.add(instrument1);
+                instr2.add(instrument2);
+                instr3.add(instrument3);
+            }
+
+        }
+
+        //initial playing, to prevent later loading issues
+        for (int i =0; i< INSTRUMENT_BUFFER_SIZE; i++) {
+            instr1.get(i).start();
+            instr2.get(i).start();
+            instr3.get(i).start();
         }
 
     }
@@ -148,7 +190,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         Log.d("TAG:  ", "SNARE TRIGGERED");
         if (!playingInstrument1) {
             playingInstrument1 = true;
-            instrument1.start();
+            instr1.get(instr1Index).start();
+            instr1Index = (instr1Index + 1) % INSTRUMENT_BUFFER_SIZE;
             Log.d("TAG: ", "PLAYING SNARE" + (++instr1Count));
         }
     }
@@ -158,34 +201,17 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         Log.d("TAG:  ", "HIHAT TRIGGERED");
         if (!playingInstrument2) {
             playingInstrument2 = true;
-            instrument2.start();
-            Log.d("TAG: ", "PLAYING HANGING" + (++instr2Count));
+            instr2.get(instr2Index).start();
+            instr2Index = (instr2Index + 1) % INSTRUMENT_BUFFER_SIZE;
+            Log.d("TAG: ", "PLAYING HANGING" + (++instr2Count)+"INDEX "+instr2Index);
         }
     }
 
     private void playInstrument3() {
-        if (instrumentType.equals("DRUMS")){
-            instrument3 = MediaPlayer.create(this, R.raw.cymbals);
-        }
-        else if (instrumentType.equals("GUITAR")) {
-            instrument3 = MediaPlayer.create(this, R.raw.guitarfmajor);
-        }
-        else{
-            instrument3 = MediaPlayer.create(this, R.raw.cymbals);
-        }
-
-        instrument3.start();
-        instrument3.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-            @Override
-            public void onCompletion(MediaPlayer mp) {
-                instrument3.release();
-            }
-        });
+        instr3.get(instr3Index).start();
+        instr3Index = (instr3Index + 1) % INSTRUMENT_BUFFER_SIZE;
         Log.d("TAG: ", "PLAYING HANGING" + (++instr2Count));
     }
-
-//    private void playBassDrum(){}
-
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
